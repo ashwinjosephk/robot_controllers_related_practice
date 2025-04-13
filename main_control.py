@@ -4,10 +4,12 @@ from matplotlib.widgets import Slider
  
 # Define PID Controller class with resistance
 class PIDControllerWithResistance:
-    def __init__(self, Kp, Ki, set_point=0, resistance_factor=0.1):
+    def __init__(self, Kp, Ki, Kd, set_point=0, resistance_factor=0.1):
         self.Kp = Kp
         self.Ki = Ki
+        self.Kd = Kd
         self.set_point = set_point
+        self.prev_error = 0
         self.integral = 0
         self.resistance_factor = resistance_factor  # Resistance to throttle (e.g., air resistance, friction)
  
@@ -17,7 +19,8 @@ class PIDControllerWithResistance:
         print("error",error)
         # output = self.Kp * error 
         self.integral += error * dt
-        output = self.Kp * error + self.Ki * self.integral
+        derivative = (error - self.prev_error) / dt
+        output = self.Kp * error + self.Ki * self.integral + self.Kd * derivative
         print("output before sub",output, "got by {}x{}".format(self.Kp,error))
         print("current_value",current_value)
         print("sub val",self.resistance_factor * current_value,output ,"got by  {}x{}".format(self.resistance_factor,current_value) )
