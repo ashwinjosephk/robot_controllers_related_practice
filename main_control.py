@@ -4,16 +4,20 @@ from matplotlib.widgets import Slider
  
 # Define PID Controller class with resistance
 class PIDControllerWithResistance:
-    def __init__(self, Kp, set_point=0, resistance_factor=0.1):
+    def __init__(self, Kp, Ki, set_point=0, resistance_factor=0.1):
         self.Kp = Kp
+        self.Ki = Ki
         self.set_point = set_point
+        self.integral = 0
         self.resistance_factor = resistance_factor  # Resistance to throttle (e.g., air resistance, friction)
  
     def update(self, current_value, dt):
         # Apply the same PID control logic but factor in resistance
         error = self.set_point - current_value
         print("error",error)
-        output = self.Kp * error
+        # output = self.Kp * error 
+        self.integral += error * dt
+        output = self.Kp * error + self.Ki * self.integral
         print("output before sub",output, "got by {}x{}".format(self.Kp,error))
         print("current_value",current_value)
         print("sub val",self.resistance_factor * current_value,output ,"got by  {}x{}".format(self.resistance_factor,current_value) )
@@ -23,10 +27,10 @@ class PIDControllerWithResistance:
 
 # Simulation parameters
 dt = 0.1  # Time step
-time = np.arange(0, 10, dt)  # Simulation time
+time = np.arange(0, 50, dt)  # Simulation time
  
 # Initialize the PID controller with disturbance (resistance)
-pid_with_resistance = PIDControllerWithResistance(Kp=1.0, set_point=50, resistance_factor=0.2)
+pid_with_resistance = PIDControllerWithResistance(Kp=1.0, Ki=0.05, set_point=50, resistance_factor=0.05)
 print("Kp=1.0, set_point=50, resistance_factor=0.2") 
 # Initial conditions
 speed = 0
